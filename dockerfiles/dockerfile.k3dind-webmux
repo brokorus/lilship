@@ -16,4 +16,4 @@ RUN apk add --update git curl bash tmux && \
 ENV TERM=xterm
 EXPOSE 8080
 
-CMD ["/usr/bin/gotty","--permit-write","--permit-arguments","--reconnect","tmux"]
+CMD ["/usr/bin/gotty","--permit-write","--permit-arguments","--reconnect","tmux","export","KUBECONFIG=/tmp/lilship/kubeconfig"]

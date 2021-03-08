@@ -276,7 +276,7 @@ puppetserver:
   ## the management of configuration data from that of the Puppet code base.
   ## A separate Hieradata Repo can be included in the "hiera" section in this file.
   ##
-  puppeturl: git@github.com:brokorus/demo-control-repo.git
+  puppeturl: ""   #  git@github.com:$SOMEUSER/puppet.git
 
 ## r10k Repo Configuration
 ##
@@ -414,7 +414,7 @@ postgresql:
     ## The value is evaluated as a template, so, for example, the name can depend on .Release or .Chart
     ##
     # existingClaim:
-    size: 10Gi
+    size: 4Gi
     annotations:
       ## The annotation instructs Helm to skip deleting this resource
       ## when a helm operation (such as helm uninstall, helm upgrade or helm rollback)

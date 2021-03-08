@@ -93,6 +93,12 @@ spec:
             runAsNonRoot: false
             privileged: true
           volumeMounts:
+            - name: puplilconfig
+              mountPath: "/etc/puppetlabs/puppet/kubeconfig"
+              readOnly: true
+            - name: lilconfig
+              mountPath: "/root/.kube/config"
+              readOnly: true
             - name: puppet-code-storage
               mountPath: /etc/puppetlabs/code/
             - name: puppet-puppet-storage
@@ -190,18 +196,6 @@ spec:
           ports:
             - containerPort: {{ template "puppetserver.puppetserver-masters.port" .}}
           volumeMounts:
-            - name: minica
-              mountPath: "/minikube/ca.crt"
-              readOnly: true
-            - name: miniconfig
-              mountPath: "/root/.kube/config"
-              readOnly: true
-            - name: minikey
-              mountPath: "/minikube/client.key"
-              readOnly: true
-            - name: minicrt
-              mountPath: "/minikube/client.crt"
-              readOnly: true
             - name: puppet-code-storage
               mountPath: /etc/puppetlabs/code/
             - name: puppet-puppet-storage
@@ -283,18 +277,12 @@ spec:
       securityContext:
         fsGroup: 999   # "puppet" GID
       volumes:
-        - name: minica
+        - name: puplilconfig
           secret:
-            secretName: minica
-        - name: minicrt
+            secretName: lilconfig
+        - name: lilconfig
           secret:
-            secretName: minicrt
-        - name: miniconfig
-          secret:
-            secretName: miniconfig
-        - name: minikey
-          secret:
-            secretName: minikey
+            secretName: lilconfig
         - name: puppet-code-storage
         {{- if .Values.puppetserver.masters.customPersistentVolumeClaim.code.enable }}
           {{- toYaml .Values.puppetserver.masters.customPersistentVolumeClaim.code.config | nindent 10 }}
