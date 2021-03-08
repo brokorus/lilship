@@ -1,0 +1,20 @@
+FROM golang:alpine3.13 as builder
+RUN apk add --update go git && \
+  mkdir -p /tmp/gotty && \
+  GO111MODULE=off GOPATH=/tmp/gotty go get github.com/yudai/gotty
+
+FROM docker:20.10.5
+COPY --from=builder /tmp/gotty/bin/gotty /usr/bin/gotty
+ADD https://raw.githubusercontent.com/rancher/k3d/main/install.sh /bin/installk3d.sh
+RUN apk add --update curl bash tmux && \
+    cat /bin/installk3d.sh | TAG=v4.2.0 bash && \
+    export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; fi && curl -L https://storage.googleapis.com/kubernetes-release/release/v1.20.4/bin/linux/${ARCH}/kubectl -o /usr/local/bin/kubectl && \
+    chmod +x /usr/local/bin/kubectl && \
+    apk del --purge curl && \
+    rm /var/cache/apk/* && \
+    rm /bin/installk3d.sh
+    
+ENV TERM=xterm
+EXPOSE 8080
+
+CMD ["/usr/bin/gotty","--permit-write","--permit-arguments","--reconnect","tmux"]

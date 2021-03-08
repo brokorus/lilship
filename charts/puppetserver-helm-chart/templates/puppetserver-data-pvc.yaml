@@ -1,0 +1,26 @@
+{{- if .Values.puppetserver.masters.customPersistentVolumeClaim.serverdata.enable }}
+{{- else }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: puppet-serverdata-claim
+  labels:
+    {{- include "puppetserver.puppetserver.labels" . | nindent 4 }}
+  {{- if .Values.storage.annotations }}
+  annotations:
+    {{ toYaml .Values.storage.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.storage.size | quote }}
+  {{- if .Values.storage.storageClass }}
+  {{- if (eq "-" .Values.storage.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.storage.storageClass }}"
+  {{- end }}
+  {{- end }}
+{{- end }}

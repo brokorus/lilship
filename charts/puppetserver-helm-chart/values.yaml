@@ -1,0 +1,591 @@
+# Default values for puppetserver.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+## Puppet Server Configuration
+##
+puppetserver:
+  name: puppetserver
+  image: puppet/puppetserver
+  tag: 6.12.1
+  pullPolicy: IfNotPresent
+  ## Mandatory Deployment of Puppet Server Master/s
+  ##
+  masters:
+  ## Puppet Server Master resource requests and limits
+  ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ##
+    resources: {}
+    #  requests:
+    #    memory: 1024Mi
+    #    cpu: 750m
+    #  limits:
+    #    memory: 2048Mi
+    #    cpu: 1500m
+
+    ## Additional Masters' container environment variables
+    ##
+    extraEnv: {}
+
+    ## Puppet Server Master readiness and liveness probe initial delays and timeouts
+    ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    ##
+    readinessProbeInitialDelay: 180
+    readinessProbePeriodSeconds: 60
+    readinessProbeTimeout: 20
+    readinessProbeFailureThreshold: 3
+    readinessProbeSuccessThreshold: 1
+    livenessProbeInitialDelay: 420
+    livenessProbePeriodSeconds: 30
+    livenessProbeTimeout: 10
+    livenessProbeFailureThreshold: 3
+    livenessProbeSuccessThreshold: 1
+
+    ## Fully qualified domain names (FQDN's) to register
+    ## the Puppet Server Masters to be internally reachable via DNS.
+    ## That is necessary to configure "certname" and "server" in `puppet.conf`.
+    ## Required by Puppet server CA CLI application.
+    ## "serverName" is pre-set to "puppet".
+    ## "alternateServerNames" is optional and must differ from
+    ## Puppet Server Compilers' "alternateServerNames".
+    ##
+    fqdns:
+      alternateServerNames: ""   # Comma-separated
+
+    ## Service for Puppet Server Masters
+    ## The usage of a TCP/Network LB type is strongly preferable
+    ## Please check the `README.md` for more information
+    ##
+    service:
+      type: ClusterIP
+      ## The LB type (network protocol) for some cloud providers must be set here.
+      ports:
+        puppetserver:
+          port: 8140
+        #  protocol: TCP
+      ## Exemplary annotations for few cloud providers
+      annotations: {}
+      #  service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+      #  service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+      #  service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+      #  cloud.google.com/load-balancer-type: "Internal"
+      #  service.kubernetes.io/ibm-load-balancer-cloud-provider-ip-type: "private"
+      labels: {}
+      loadBalancerIP: ""
+
+    ingress:
+      ## If true, Puppet Server Masters Ingress will be created
+      ##
+      enabled: false
+      ## Puppet Server Masters Ingress annotations
+      ##
+      annotations: {}
+        #  kubernetes.io/ingress.class: nginx
+        #  nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+      ## Puppet Server Masters Ingress additional labels
+      ##
+      extraLabels: {}
+      ## Puppet Server Masters Ingress hostnames with optional path
+      ## Must be provided if Ingress is enabled
+      ##
+      hosts: []
+      #   - puppet.domain.com
+      #   - domain.com/puppet
+      ## Puppet Server Masters Ingress TLS configuration
+      ## Secrets must be manually created in the namespace
+      ##
+      tls: []
+      #   - secretName: puppet-server-tls
+      #     hosts:
+      #       - puppet.domain.com
+
+    ## Horizontal Scaling
+    ##
+    multiMasters:
+      ## Optional deployment of multiple Puppet Server Masters
+      ## NOTE: Must share the same storage volumes
+      enabled: false
+      ## Horizontal Pod Manual Scaling for Puppet Server Masters
+      ## Set the desired number of Puppet Server Masters
+      manualScaling:
+        masters: 1
+      ## Horizontal Pod Autoscaling for Puppet Server Masters
+      ## Automatically scales the number of pods (masters)
+      ## based on observed CPU/memory utilization
+      ## Note that the metrics must be provided by
+      ## additionally deployed metrics server of your choice
+      autoScaling:
+        enabled: false
+        minMasters: 1
+        maxMasters: 3
+        cpuUtilizationPercentage: 75
+        memoryUtilizationPercentage: 75
+
+    ## Use custom PVC for the Puppet Server Master
+    customPersistentVolumeClaim:
+      serverdata:
+        enable: false
+        config: {}
+      #  azureDisk:
+      #    kind: Managed
+      #    diskName: myAKSDisk
+      #    diskURI: /subscriptions/<subscriptionID>/resourceGroups/MC_myAKSCluster_myAKSCluster_eastus/providers/Microsoft.Compute/disks/myAKSDisk
+      puppet:
+        enable: false
+        config: {}
+      code:
+        enable: false
+        config: {}
+
+  ## Optional StatefulSet of Puppet Server Compiler/s
+  ##
+  compilers:
+    enabled: false
+  ## Puppet Server Compiler resource requests and limits
+  ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ##
+    resources: {}
+    #  requests:
+    #    memory: 1024Mi
+    #    cpu: 750m
+    #  limits:
+    #    memory: 2048Mi
+    #    cpu: 1500m
+
+    ## Affinity for puppetserver pod assignment
+    ## Schedule compilers on different K8s nodes
+    ##
+    podAntiAffinity: false
+
+    ## Puppetserver Compilers' StatefulSet annotations
+    ##
+    annotations: {}
+
+    ## Additional Compilers' container environment variables
+    ##
+    extraEnv: {}
+
+    ## Puppet Server Compiler readiness and liveness probe initial delays and timeouts
+    ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    ##
+    readinessProbeInitialDelay: 180
+    readinessProbePeriodSeconds: 60
+    readinessProbeTimeout: 20
+    readinessProbeFailureThreshold: 3
+    readinessProbeSuccessThreshold: 1
+    livenessProbeInitialDelay: 420
+    livenessProbePeriodSeconds: 30
+    livenessProbeTimeout: 10
+    livenessProbeFailureThreshold: 3
+    livenessProbeSuccessThreshold: 1
+
+    ## Horizontal Pod Manual Scaling for Puppet Server Compilers
+    ## Set the desired number of Puppet Server Compilers
+    ##
+    manualScaling:
+      compilers: 1
+    ## Horizontal Pod Autoscaling for Puppet Server Compilers
+    ## Automatically scales the number of pods (compilers)
+    ## based on observed CPU/memory utilization
+    ## Note that the metrics must be provided by
+    ## additionally deployed metrics server of your choice
+    autoScaling:
+      enabled: false
+      minCompilers: 1
+      maxCompilers: 3
+      cpuUtilizationPercentage: 75
+      memoryUtilizationPercentage: 75
+    podManagementPolicy: OrderedReady
+
+    ## Fully qualified domain names (FQDN's) to register
+    ## the Puppet Server Compilers to be internally reachable via DNS.
+    ## That is necessary to configure "certname" and "server" in `puppet.conf`.
+    ## Required by Puppet server CA CLI application.
+    ## "serverName" is pre-set to Compilers' pod names.
+    ## "alternateServerNames" is optional and must differ from
+    ## Puppet Server Masters' "alternateServerNames".
+    ##
+    fqdns:
+      alternateServerNames: ""   # Comma-separated
+
+    ## Service for Puppet Server Compilers
+    ## The usage of a TCP/Network LB type is strongly preferable
+    ## Please check the `README.md` for more information
+    ##
+    service:
+      type: ClusterIP
+      ## The LB type (network protocol) for some cloud providers must be set here.
+      ports:
+        puppetserver:
+          port: 8140
+        #  protocol: TCP
+      ## Exemplary annotations for few cloud providers
+      annotations: {}
+      #  service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+      #  service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+      #  service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+      #  cloud.google.com/load-balancer-type: "Internal"
+      #  service.kubernetes.io/ibm-load-balancer-cloud-provider-ip-type: "private"
+      labels: {}
+      loadBalancerIP: ""
+      ## Headless service for Puppet Server Compilers
+      headless:
+        ports:
+          https:
+            port: 443
+            targetPort: 8140
+            protocol: TCP
+        annotations: {}
+        labels: {}
+
+    ingress:
+      ## If true, Puppet Server Compilers Ingress will be created
+      ##
+      enabled: false
+      ## Puppet Server Compilers Ingress annotations
+      ##
+      annotations: {}
+        #  kubernetes.io/ingress.class: nginx
+        #  nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+      ## Puppet Server Compilers Ingress additional labels
+      ##
+      extraLabels: {}
+      ## Puppet Server Compilers Ingress hostnames with optional path
+      ## Must be provided if Ingress is enabled
+      ##
+      hosts: []
+      #   - puppet-compilers.domain.com
+      #   - domain.com/puppet-compilers
+      ## Puppet Server Compilers Ingress TLS configuration
+      ## Secrets must be manually created in the namespace
+      ##
+      tls: []
+      #   - secretName: puppet-compilers-server-tls
+      #     hosts:
+      #       - puppet-compilers.domain.com
+
+  ## Use pre-generated Puppet Master certs in `./init/puppet-certs`
+  ## Check README for related use cases
+  ##
+  preGeneratedCertsJob:
+    enabled: false
+    jobDeadline: 300
+
+  ## The pattern of managing Hieradata in a separate repository is
+  ## both common and acceptable. Doing so provides the ability to decouple
+  ## the management of configuration data from that of the Puppet code base.
+  ## A separate Hieradata Repo can be included in the "hiera" section in this file.
+  ##
+  puppeturl: git@github.com:brokorus/demo-control-repo.git
+
+## r10k Repo Configuration
+##
+r10k:
+  name: r10k
+  image: puppet/r10k
+  tag: 3.5.2
+  pullPolicy: IfNotPresent
+  code:
+    resources: {}
+    #  requests:
+    #    memory: 256Mi
+    #    cpu: 200m
+    #  limits:
+    #    memory: 512Mi
+    #    cpu: 300m
+    cronJob:
+      schedule: "*/5 * * * *"
+    ## Additional r10k code container arguments
+    extraArgs: []
+    #   - --verbose=debug2   # error, warn, notice, info, debug, debug1, debug2
+    #   - --trace
+    #   - --color
+    ## Additional r10k code container environment variables
+    extraEnv: {}
+    viaSsh:
+      credentials:
+        ssh:
+          ## A multi-line string
+          value:  # |
+            #  PRIV_KEY CONTENTS
+        known_hosts:
+          ## A multi-line string
+          value:  # |
+            #  KNOWN_HOSTS CONTENTS
+        ## or set the r10k known hosts file and SSH Private Key
+        ## from a pre-existing K8s secret
+        ## NOTE: Using this secret supercedes all other credentials settings.
+        existingSecret: ""
+  hiera:
+    resources: {}
+    #  requests:
+    #    memory: 256Mi
+    #    cpu: 200m
+    #  limits:
+    #    memory: 512Mi
+    #    cpu: 300m
+    cronJob:
+      schedule: "*/4 * * * *"
+    ## Additional r10k hiera container environment variables
+    extraArgs: []
+    #   - --verbose=debug2   # error, warn, notice, info, debug, debug1, debug2
+    #   - --trace
+    #   - --color
+    ## Additional puppetserver hiera container environment variables
+    extraEnv: {}
+    viaSsh:
+      credentials:
+        ssh:
+          ## A multi-line string
+          value:  # |
+            #  PRIV_KEY CONTENTS
+        known_hosts:
+          ## A multi-line string
+          value:  # |
+            #  KNOWN_HOSTS CONTENTS
+        ## or set the r10k known hosts file and SSH Private Key
+        ## from a pre-existing K8s secret
+        ## NOTE: Using this secret supercedes all other credentials settings.
+        existingSecret: ""
+
+## PuppetDB Configuration
+##
+puppetdb:
+  name: puppetdb
+  image: puppet/puppetdb
+  tag: 6.12.0
+  pullPolicy: IfNotPresent
+  resources: {}
+  #  requests:
+  #    memory: 512Mi
+  #    cpu: 500m
+  #  limits:
+  #    memory: 1024Mi
+  #    cpu: 1000m
+  ## Additional puppetdb container environment variables
+  extraEnv: {}
+  ## puppetdb metrics enable/disable flag
+  metrics:
+    enabled: false
+  ## Use custom PVC for the Puppet PuppetDB
+  customPersistentVolumeClaim:
+    storage:
+      enable: false
+      config: {}
+
+## PostgreSQL Sub-Chart Configuration
+## Please check: https://github.com/bitnami/charts/tree/master/bitnami/postgresql
+##
+postgresql:
+  enabled: true
+  name: postgresql
+  ## Configure resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ##
+  # resources:
+  #  requests:
+  #    memory: 512Mi
+  #    cpu: 500m
+  #  limits:
+  #    memory: 1024Mi
+  #    cpu: 1000m
+  ## Create a database
+  ## ref: https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md#creating-a-database-on-first-run
+  ##
+  postgresqlDatabase: puppetdb
+  ## Specify the PostgreSQL username and password to execute the initdb scripts
+  ##
+  initdbUser: postgres
+  ## ConfigMap with scripts to be run at first boot
+  ## NOTE: This will override initdbScripts
+  ##
+  initdbScriptsConfigMap: postgresql-custom-extensions
+  ## PostgreSQL data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  persistence:
+    enabled: true
+    ## A manually managed Persistent Volume and Claim
+    ## If defined, PVC must be created manually before volume will be bound
+    ## The value is evaluated as a template, so, for example, the name can depend on .Release or .Chart
+    ##
+    # existingClaim:
+    size: 10Gi
+    annotations:
+      ## The annotation instructs Helm to skip deleting this resource
+      ## when a helm operation (such as helm uninstall, helm upgrade or helm rollback)
+      ## would result in its deletion.
+      ##
+      helm.sh/resource-policy: keep
+  ## Replication settings
+  ## Please check: https://github.com/bitnami/charts/blob/master/bitnami/postgresql/values.yaml
+  ##
+  replication:
+    enabled: false
+    slaveReplicas: 1
+
+## Puppetboard Configuration
+##
+puppetboard:
+  enabled: false
+  name: puppetboard
+  image: xtigyro/puppetboard
+  tag: 2.2.0
+  pullPolicy: IfNotPresent
+  resources: {}
+  #  requests:
+  #    memory: 368Mi
+  #    cpu: 300m
+  #  limits:
+  #    memory: 640Mi
+  #    cpu: 500m
+  ## Additional puppetboard container environment variables
+  ##
+  extraEnv: {}
+  #  ENABLE_CATALOG: True
+  #  ENABLE_QUERY: True
+  #  INVENTORY_FACTS: Hostname,fqdn,IP Address,ipaddress
+  #  GRAPH_FACTS: architecture,puppetversion,osfamily
+  ingress:
+    ## If true, Puppetboard Ingress will be created
+    ##
+    enabled: false
+    ## Puppetboard Ingress annotations
+    ##
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+    ## Puppetboard Ingress additional labels
+    ##
+    extraLabels: {}
+    ## Puppetboard Ingress hostnames with optional path
+    ## Must be provided if Ingress is enabled
+    ##
+    hosts: []
+    #   - puppetboard.domain.com
+    #   - domain.com/puppetboard
+    ## Puppetboard Ingress TLS configuration
+    ## Secrets must be manually created in the namespace
+    ##
+    tls: []
+    #   - secretName: puppetboard-server-tls
+    #     hosts:
+    #       - puppetboard.domain.com
+
+## Hiera Configuration for Puppet Server
+##
+hiera:
+  name: hiera
+  hieradataurl: ""   # git@github.com:$SOMEUSER/hieradata.git
+  ## A multi-line string
+  ##
+  config:  # |-
+  ## Hiera version 5 Example
+  ##
+    # ---
+    # version: 5
+    # defaults:
+    #   datadir: data          # Datadir has moved into `defaults`. Relative to hiera.yaml's directory.
+    #   data_hash: yaml_data   # Default backend: New feature in v5.
+    # hierarchy:
+    #   - name: "Per-node data"        # Human-readable name. Can omit `backend` if using the default.
+    #     path:
+    #       - "nodes/%{trusted.certname}.yaml"   # File path, relative to datadir. Add file extension!
+    #   - name: "Per-datacenter secret data (encrypted)"
+    #     lookup_key: eyaml_lookup_key
+    #     path: "secrets/%{facts.whereami}.eyaml"   # Can use custom facts.
+    #     options:
+    #       pkcs7_private_key: /etc/puppetlabs/puppet/eyaml/keys/private_key.pkcs7.pem   # keep unchanged
+    #       pkcs7_public_key: /etc/puppetlabs/puppet/eyaml/keys/public_key.pkcs7.pem     # keep unchanged
+    #   - name: "Virtualization platform"
+    #     path: "virtual/%{facts.virtual}.yaml"   # Name and path are now separated.
+    #   - name: "Common"
+    #     path: "common.yaml"
+  ## Hiera version 3 Example
+  ##
+    # ---
+    # :backends:
+    #   - eyaml
+    # :hierarchy:
+    #   - "nodes/%{trusted.certname}"
+    #   - "secrets/%{facts.whereami}"
+    #   - "virtual/%{facts.virtual}"
+    #   - "common"
+    # :eyaml:
+    #   # Set branch name - e.g. "master", "%{::environment}", etc.
+    #   :datadir: /etc/puppetlabs/code/hiera-data/[branch]   # keep base path unchanged.
+    #   :extension: 'yaml'
+    #   :pkcs7_private_key: /etc/puppetlabs/puppet/eyaml/keys/private_key.pkcs7.pem   # keep unchanged
+    #   :pkcs7_public_key: /etc/puppetlabs/puppet/eyaml/keys/public_key.pkcs7.pem     # keep unchanged
+  eyaml:
+    ## Choose using either a pre-existing configMap containing keys, or the private_key/public_key set.
+    ##
+    existingMap: ""
+    ## A multi-line string
+    ##
+    private_key:  # |
+      #  PRIV_KEY CONTENTS
+    ## A multi-line string
+    ##
+    public_key:  # |
+      #  PUB_KEY CONTENTS
+
+## Global Values
+##
+global:
+  ## Credentials for PuppetDB and PostgreSQL
+  ##
+  credentials:
+    username: puppetdb
+    password: ""
+    ## If used, the following existing secret must contain "username" and "password" keys.
+    ## NOTE: Using this secret supercedes all other credentials settings.
+    ##
+    existingSecret: ""
+
+## Provide a name in place of Puppet Server components for `app:` labels
+##
+nameOverride: ""
+
+## Pod Configuration
+##
+## Node labels for pod assignment
+##
+nodeSelector: {}
+
+## Affinity for pod assignment
+## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+affinity: {}
+
+## Tolerations for pod assignment
+## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+tolerations: []
+
+## Leverage a priorityClass to ensure your pods survive resource shortages
+## ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+# priorityClass: system-cluster-critical
+
+## Extra Pod annotations
+##
+podAnnotations: {}
+
+## Storage Configuration
+##
+storage:
+  ## Puppet Server data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  ## Please check the `README.md` for more information
+  ## regarding useful scenarios about "storageClass".
+  storageClass: ""
+  ## Puppetserver data Persistent Volume annotations
+  ##
+  annotations: {}
+  size: 400Mi
