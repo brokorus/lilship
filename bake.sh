@@ -1,9 +1,9 @@
 function main () {
   dockerCheck
   init
-  cd /tmp/lilship
+  lilGit clone https://github.com/brokorus/lilship.git
   lilAdmin k3d registry create lilshiplocalregistry.localhost --port 8083 
-  k3d cluster create --api-port 8082 lilship --kubeconfig-update-default=true --registry-use k3d-lilshiplocalregistry.localhost:8083 
+  lilAdmin k3d cluster create --api-port 8082 lilship --kubeconfig-update-default=true --registry-use k3d-lilshiplocalregistry.localhost:8083 
   installPuppetServer
 
   
@@ -22,8 +22,7 @@ function init () {
   docker rm k3d-lilship-serverlb
   docker rm k3d-lilshiplocalregistry.localhost
   rm -rf /tmp/lilship
-  mkdir -p /tmp/lilship
-  if docker run -w /tmp/lilship -e KUBECONFIG=/tmp/lilship/kubeconfig -d -p 8081:8080 --name lilship-k3d-webmux -it -v /tmp/lilship:/tmp/lilship -v /var/run/docker.sock:/var/run/docker.sock --privileged  brokorus/lilship:1.1-k3dind-webmux
+  if docker run -w /tmp/lilship -e KUBECONFIG=/tmp/lilship/kubeconfig -d -p 8081:8080 --name lilship-k3d-webmux -it -v /tmp/lilship:/tmp/lilship -v /var/run/docker.sock:/var/run/docker.sock --privileged  brokorus/lilship:1.1-k3dind-webmux; then
     docker exec -it lilship-k3d-webmux tmux new -s lilshipbuilder -d
     docker exec -i lilship-k3d-webmux  tmux send-keys -t lilshipbuilder "tmux split-window -h" ENTER
     docker exec -i lilship-k3d-webmux  tmux send-keys -t lilshipbuilder.1 "curl https://raw.githubusercontent.com/brokorus/lilship/main/bake.sh | bash" ENTER
@@ -31,7 +30,7 @@ function init () {
     echo 'New ttys can be made by visiting http://localhost:8081 in a new tab or window'
     exit
   else
-    echo 'already running'
+    echo 'Running Demo'
   fi
 }
 
@@ -40,7 +39,7 @@ function lilAdmin () {
 }
 
 function lilKube () {
-  lilAdmin docker run --network host -e KUBECONFIG=/tmp/lilship/kubeconfig --rm --name kubectl -w /tmp/lilship:/tmp/lilship -v /tmp/lilship:/tmp/lilship  dtzar/helm-kubectl:3.5.2 $@
+  lilAdmin docker run --network host -e KUBECONFIG=/tmp/lilship/kubeconfig --rm --name kubectl -v /tmp/lilship:/tmp/lilship  dtzar/helm-kubectl:3.5.2 $@
 }
 
 
@@ -49,7 +48,7 @@ function lilGit () {
 }
 
 function installPuppetServer () {
-  lilKube helm install puppetserver ./charts/puppetserver-helm-chart
+  lilKube helm install puppetserver ./lilship/charts/puppetserver-helm-chart
 }
 
 function dockerCheck () {
