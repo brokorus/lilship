@@ -28,9 +28,9 @@ function init () {
     docker exec -i lilship-k3d-webmux  tmux send-keys -t lilshipbuilder.1 "curl https://raw.githubusercontent.com/brokorus/lilship/main/bake.sh | bash" ENTER
     echo 'Please open your browser to http://localhost:8081/\?arg\=a\&arg\=-t\&arg\=lilshipbuilder'
     echo 'New ttys can be made by visiting http://localhost:8081 in a new tab or window'
-    exit
   else
-    echo 'Running Demo'
+    echo 'Running Demo Already'
+    exit
   fi
 }
 
