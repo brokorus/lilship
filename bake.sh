@@ -37,7 +37,6 @@ function getLilShip () {
   lilAdmin adduser git -D
   lilAdmin chown -R git:git /tmp/lilship
   lilAdmin ssh-keyscan -p 22 -H lilgitserver > /tmp/lilship/known_hosts
-  lilKube kubectl delete secret gitssh
   lilKube kubectl create secret generic gitssh --from-file=id_rsa=/tmp/lilship/id_rsa  --from-file=authorized_keys=/tmp/lilship/id_rsa.pub
   lilKube helm install lilgitserver /tmp/lilship/lilship/k8s/lilgitserver
 }
@@ -66,6 +65,7 @@ function lilKube () {
 }
 
 function installPuppetServer () {
+  lilKube kubectl delete secret gitssh
   lilKube kubectl create secret generic lilconfig --from-file=/tmp/lilship/kubeconfig
   lilKube helm install pup /tmp/lilship/lilship/k8s/puppetserver-helm-chart
   lilKube kubectl create secret generic gitssh --from-file=id_rsa=/tmp/lilship/id_rsa --from-file=known_hosts=/tmp/lilship/known_hosts --from-file=authorized_keys=/tmp/lilship/id_rsa.pub
