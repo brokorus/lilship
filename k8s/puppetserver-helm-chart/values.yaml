@@ -76,7 +76,7 @@ puppetserver:
     ingress:
       ## If true, Puppet Server Masters Ingress will be created
       ##
-      enabled: true
+      enabled: false
       ## Puppet Server Masters Ingress annotations
       ##
       annotations: {}
@@ -431,7 +431,7 @@ postgresql:
 ## Puppetboard Configuration
 ##
 puppetboard:
-  enabled: true
+  enabled: false
   name: puppetboard
   image: xtigyro/puppetboard
   tag: 2.2.0
@@ -453,7 +453,7 @@ puppetboard:
   ingress:
     ## If true, Puppetboard Ingress will be created
     ##
-    enabled: true
+    enabled: false
     ## Puppetboard Ingress annotations
     ##
     annotations: {}

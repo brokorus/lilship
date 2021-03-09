@@ -27,24 +27,36 @@ spec:
       serviceAccountName: {{ include "lilgitserver.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: lilgit
+          secret:
+            secretName: gitssh
+            defaultMode: 0600
+            items:
+            - key: id_rsa
+              path: id_rsa
+            - key: authorized_keys
+              path: authorized_keys
+            - key: known_hosts
+              path: known_hosts
+        - name: lilship
+          persistentVolumeClaim:
+            claimName: lilship
       containers:
         - name: {{ .Chart.Name }}
+          volumeMounts:
+            - mountPath: "/tmp/lilship"
+              name: lilship
+            - mountPath: "/home/git/.ssh"
+              name: lilgit
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 80
+            - name: ssh
+              containerPort: 22
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

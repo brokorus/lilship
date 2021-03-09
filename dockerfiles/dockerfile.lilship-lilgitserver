@@ -1,10 +1,32 @@
-FROM alpine/git
-COPY ./files/sshd_config /etc/ssh/sshd_config
-RUN git config --global user.useConfigOnly true && \
-    ssh-keygen -A && \
-    adduser git -D && \
-    mkdir /home/git/.ssh
-    
-EXPOSE 22
-ENTRYPOINT [""]
-CMD ["/usr/sbin/sshd", "-D"]
+FROM alpine:3.11.6
+
+
+ARG HOME=/var/lib/git
+
+ARG USER=git
+ARG GROUP=git
+ARG UID=4096
+ARG GID=4096
+
+ENV HOST_KEYS_PATH_PREFIX="/usr"
+ENV HOST_KEYS_PATH="${HOST_KEYS_PATH_PREFIX}/etc/ssh"
+
+ADD https://raw.githubusercontent.com/binlab/docker-bastion/v1.2.0/bastion /usr/sbin/bastion
+
+RUN addgroup -S -g ${GID} ${GROUP} \
+    && adduser -D -h ${HOME} -s /bin/ash -g "${USER} service" \
+           -u ${UID} -G ${GROUP} ${USER} \
+    && sed -i "s/${USER}:!/${USER}:*/g" /etc/shadow \
+    && set -x \
+    && apk add --no-cache git openssh-server \
+    && echo "Welcome to lilship!" > /etc/motd \
+    && chmod +x /usr/sbin/bastion \
+    && mkdir -p ${HOST_KEYS_PATH} \
+    && mkdir /etc/ssh/auth_principals \
+    && echo "git" > /etc/ssh/auth_principals/git
+
+EXPOSE 22/tcp
+
+VOLUME ${HOST_KEYS_PATH}
+
+ENTRYPOINT ["bastion"]

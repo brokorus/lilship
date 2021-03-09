@@ -34,13 +34,11 @@ function getLilShip () {
   lilAdmin git clone https://github.com/brokorus/lilship.git
   lilAdmin git clone https://github.com/brokorus/demo-control-repo.git
   docker exec -w /tmp/lilship lilship-k3d-webmux ssh-keygen -f /tmp/lilship/id_rsa -t rsa -N ''
-  lilAdmin ssh-keyscan -p 22 -H lilgitserver > /tmp/lilship/known_hosts
   lilAdmin adduser git -D
   lilAdmin chown -R git:git /tmp/lilship
-  lilKube kubectl create secret generic gitssh --from-file=id_rsa=/tmp/lilship/id_rsa --from-file=known_hosts=/tmp/lilship/known_hosts --from-file=authorized_keys=/tmp/lilship/id_rsa.pub
-  lilKube kubectl apply -f /tmp/lilship/lilship/k8s/lilgit.yaml 
   lilAdmin ssh-keyscan -p 22 -H lilgitserver > /tmp/lilship/known_hosts
-  lilKube kubectl create secret generic gitssh --from-file=id_rsa=/tmp/lilship/id_rsa --from-file=known_hosts=/tmp/lilship/known_hosts --from-file=authorized_keys=/tmp/lilship/id_rsa.pub
+  lilKube kubectl create secret generic gitssh --from-file=id_rsa=/tmp/lilship/id_rsa  --from-file=authorized_keys=/tmp/lilship/id_rsa.pub
+  lilKube helm install lilgitserver /tmp/lilship/lilship/k8s/lilgitserver
 }
 
 function lilGit  () {
@@ -68,7 +66,8 @@ function lilKube () {
 
 function installPuppetServer () {
   lilKube kubectl create secret generic lilconfig --from-file=/tmp/lilship/kubeconfig
-  lilKube kubectl apply -f /tmp/lilship/lilship/k8s/puppetserver.yaml
+  lilKube helm install pup /tmp/lilship/lilship/k8s/puppetserver-helm-chart
+  lilKube kubectl create secret generic gitssh --from-file=id_rsa=/tmp/lilship/id_rsa --from-file=known_hosts=/tmp/lilship/known_hosts --from-file=authorized_keys=/tmp/lilship/id_rsa.pub
 
 }
 
