@@ -28,7 +28,7 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
-        - name: lilgit
+        - name: gitlilship
           secret:
             secretName: gitssh
             defaultMode: 0600
@@ -39,9 +39,9 @@ spec:
               path: authorized_keys
             - key: known_hosts
               path: known_hosts
-        - name: lilship
+        - name: gitlilship
           persistentVolumeClaim:
-            claimName: lilship
+            claimName: gitlilship
       containers:
         - name: {{ .Chart.Name }}
           volumeMounts:
