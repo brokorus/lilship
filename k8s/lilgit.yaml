@@ -6,6 +6,7 @@ metadata:
   name: lilgitserver
   labels:
     app.kubernetes.io/name: lilgitserver
+    app.kubernetes.io/instance: lilgitserver
     app.kubernetes.io/version: "1.16.0"
 ---
 # Source: lilgitserver/templates/service.yaml
@@ -15,6 +16,7 @@ metadata:
   name: lilgitserver
   labels:
     app.kubernetes.io/name: lilgitserver
+    app.kubernetes.io/instance: lilgitserver
     app.kubernetes.io/version: "1.16.0"
 spec:
   type: ClusterIP
@@ -25,6 +27,7 @@ spec:
       name: ssh
   selector:
     app.kubernetes.io/name: lilgitserver
+    app.kubernetes.io/instance: lilgitserver
 ---
 # Source: lilgitserver/templates/deployment.yaml
 apiVersion: apps/v1
@@ -33,16 +36,19 @@ metadata:
   name: lilgitserver
   labels:
     app.kubernetes.io/name: lilgitserver
+    app.kubernetes.io/instance: lilgitserver
     app.kubernetes.io/version: "1.16.0"
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: lilgitserver
+      app.kubernetes.io/instance: lilgitserver
   template:
     metadata:
       labels:
         app.kubernetes.io/name: lilgitserver
+        app.kubernetes.io/instance: lilgitserver
     spec:
       serviceAccountName: lilgitserver
       volumes:

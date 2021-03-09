@@ -3,11 +3,11 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: puppetserver-postgresql
+  name: master-postgresql
   labels:
     app.kubernetes.io/name: postgresql
     helm.sh/chart: postgresql-9.4.1
-    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/instance: master
     app.kubernetes.io/managed-by: Helm
 type: Opaque
 data:
@@ -21,7 +21,7 @@ metadata:
   labels:
     component: "puppetdb"
     app: puppetserver
-    release: puppetserver
+    release: master
     chart: puppetserver-5.1.0
     heritage: Helm
 type: Opaque
@@ -37,7 +37,7 @@ metadata:
   labels:
     component: "postgresql"
     app: puppetserver
-    release: puppetserver
+    release: master
     chart: puppetserver-5.1.0
     heritage: Helm
 data:
@@ -53,7 +53,7 @@ metadata:
   labels:
     component: "puppetserver"
     app: puppetserver
-    release: puppetserver
+    release: master
     chart: puppetserver-5.1.0
     heritage: Helm
 data:
@@ -68,26 +68,22 @@ metadata:
   labels:
     component: "r10k"
     app: puppetserver
-    release: puppetserver
+    release: master
     chart: puppetserver-5.1.0
     heritage: Helm
 data:
   r10k_code.yaml: |
-    # The location to use for storing cached Git repos
     cachedir: '/etc/puppetlabs/code/r10k_cache'
-    # A list of git repositories to create
     git:
       provider: 'shellgit'
       private_key: '/root/.ssh/id_rsa'
       username: 'root'
     sources:
-      # This will clone the git repository and instantiate an environment per
-      # branch in '/etc/puppetlabs/code/environments'
       puppet_repo:
         remote: 'ssh://git@lilgitserver:22/tmp/lilship/demo-control-repo.git'
         basedir: '/etc/puppetlabs/code/environments'
         ignore_branch_prefixes:
-          - 'default'
+          - 'badBranch'
 
   r10k_code_cronjob.sh: |
     #!/usr/bin/env sh
@@ -119,7 +115,7 @@ metadata:
   labels:
     component: "puppetdb"
     app: puppetserver
-    release: puppetserver
+    release: master
     chart: puppetserver-5.1.0
     heritage: Helm
 spec:
@@ -137,7 +133,7 @@ metadata:
   labels:
     component: "puppetserver"
     app: puppetserver
-    release: puppetserver
+    release: master
     chart: puppetserver-5.1.0
     heritage: Helm
 spec:
@@ -155,7 +151,7 @@ metadata:
   labels:
     component: "puppetserver"
     app: puppetserver
-    release: puppetserver
+    release: master
     chart: puppetserver-5.1.0
     heritage: Helm
 spec:
@@ -173,7 +169,7 @@ metadata:
   labels:
     component: "puppetserver"
     app: puppetserver
-    release: puppetserver
+    release: master
     chart: puppetserver-5.1.0
     heritage: Helm
 spec:
@@ -187,11 +183,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: puppetserver-postgresql-headless
+  name: master-postgresql-headless
   labels:
     app.kubernetes.io/name: postgresql
     helm.sh/chart: postgresql-9.4.1
-    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/instance: master
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -202,17 +198,17 @@ spec:
       targetPort: tcp-postgresql
   selector:
     app.kubernetes.io/name: postgresql
-    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/instance: master
 ---
 # Source: puppetserver/charts/postgresql/templates/svc.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: puppetserver-postgresql
+  name: master-postgresql
   labels:
     app.kubernetes.io/name: postgresql
     helm.sh/chart: postgresql-9.4.1
-    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/instance: master
     app.kubernetes.io/managed-by: Helm
   annotations:
 spec:
@@ -223,7 +219,7 @@ spec:
       targetPort: tcp-postgresql
   selector:
     app.kubernetes.io/name: postgresql
-    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/instance: master
     role: master
 ---
 # Source: puppetserver/templates/puppetdb-service.yaml
@@ -234,7 +230,7 @@ metadata:
   labels:
     component: "puppetdb"
     app: puppetserver
-    release: puppetserver
+    release: master
     chart: puppetserver-5.1.0
     heritage: Helm
 spec:
@@ -248,7 +244,7 @@ spec:
   selector:
     component: "puppetdb"
     app: puppetserver
-    release: puppetserver
+    release: master
 ---
 # Source: puppetserver/templates/puppetserver-service-masters.yaml
 apiVersion: v1
@@ -258,7 +254,7 @@ metadata:
   labels:
     component: "puppetserver"
     app: puppetserver
-    release: puppetserver
+    release: master
     chart: puppetserver-5.1.0
     heritage: Helm
 spec:
@@ -268,7 +264,7 @@ spec:
   selector:
     component: "puppetserver"
     app: puppetserver
-    release: puppetserver
+    release: master
   type: ClusterIP
 ---
 # Source: puppetserver/templates/puppetdb-deployment.yaml
@@ -279,7 +275,7 @@ metadata:
   labels:
     component: "puppetdb"
     app: puppetserver
-    release: puppetserver
+    release: master
     chart: puppetserver-5.1.0
     heritage: Helm
 spec:
@@ -287,7 +283,7 @@ spec:
     matchLabels:
       component: "puppetdb"
       app: puppetserver
-      release: puppetserver
+      release: master
   strategy:
     type: Recreate
   template:
@@ -295,7 +291,7 @@ spec:
       labels:
         component: "puppetdb"
         app: puppetserver
-        release: puppetserver
+        release: master
         chart: puppetserver-5.1.0
         heritage: Helm
     spec:
@@ -366,7 +362,7 @@ metadata:
   labels:
     component: "puppetserver"
     app: puppetserver
-    release: puppetserver
+    release: master
     chart: puppetserver-5.1.0
     heritage: Helm
 spec:
@@ -374,7 +370,7 @@ spec:
     matchLabels:
       component: "puppetserver"
       app: puppetserver
-      release: puppetserver
+      release: master
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -385,7 +381,7 @@ spec:
       labels:
         component: "puppetserver"
         app: puppetserver
-        release: puppetserver
+        release: master
         chart: puppetserver-5.1.0
         heritage: Helm
       annotations:
@@ -445,7 +441,7 @@ spec:
               mountPath: /etc/puppetlabs/puppet/configmap/site.pp
               subPath: site.pp
       containers:
-        - name: RELEASE-NAME-puppetserver
+        - name: master-puppetserver
           image: "puppet/puppetserver:6.12.1"
           imagePullPolicy: "IfNotPresent"
           resources:
@@ -505,12 +501,8 @@ spec:
           - name: gitssh
             mountPath: "/root/.ssh/"
             readOnly: true
-          - name: puplilconfig
-            mountPath: "/etc/puppetlabs/puppet/kubeconfig"
-            readOnly: true
-          - name: lilconfig
-            mountPath: "/root/.kube/config"
-            readOnly: true
+          - name: r10k-code-secret
+            mountPath: /home/puppet/.ssh
           - name: puppet-code-storage
             mountPath: /etc/puppetlabs/code/
           - name: puppet-puppet-storage
@@ -547,6 +539,10 @@ spec:
         - name: manifests-volume
           configMap:
             name: manifests-config
+        - name: r10k-code-secret
+          secret:
+            secretName: gitssh
+            defaultMode: 288 # = mode 0440
         - name: r10k-code-volume
           configMap:
             name: r10k-code-config
@@ -555,37 +551,37 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: puppetserver-postgresql
+  name: master-postgresql
   labels:
     app.kubernetes.io/name: postgresql
     helm.sh/chart: postgresql-9.4.1
-    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/instance: master
     app.kubernetes.io/managed-by: Helm
   annotations:
 spec:
-  serviceName: puppetserver-postgresql-headless
+  serviceName: master-postgresql-headless
   replicas: 1
   updateStrategy:
     type: RollingUpdate
   selector:
     matchLabels:
       app.kubernetes.io/name: postgresql
-      app.kubernetes.io/instance: RELEASE-NAME
+      app.kubernetes.io/instance: master
       role: master
   template:
     metadata:
-      name: puppetserver-postgresql
+      name: master-postgresql
       labels:
         app.kubernetes.io/name: postgresql
         helm.sh/chart: postgresql-9.4.1
-        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/instance: master
         app.kubernetes.io/managed-by: Helm
         role: master
     spec:      
       securityContext:
         fsGroup: 1001
       containers:
-        - name: puppetserver-postgresql
+        - name: master-postgresql
           image: docker.io/bitnami/postgresql:11.9.0-debian-10-r16
           imagePullPolicy: "IfNotPresent"
           resources:
@@ -610,7 +606,7 @@ spec:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: puppetserver-postgresql
+                  name: master-postgresql
                   key: postgresql-password
             - name: POSTGRES_DB
               value: "puppetdb"
@@ -672,32 +668,4 @@ spec:
           - "ReadWriteOnce"
         resources:
           requests:
-            storage: "4Gi"
----
-# Source: puppetserver/templates/puppetboard-ingress.yaml
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  labels:
-    component: "puppetdb"
-    app: puppetserver
-    release: puppetserver
-    chart: puppetserver-5.1.0
-    heritage: Helm
-  name: puppetboard
-spec:
-  rules:
----
-# Source: puppetserver/templates/puppetserver-ingress-masters.yaml
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  labels:
-    component: "puppetserver"
-    app: puppetserver
-    release: puppetserver
-    chart: puppetserver-5.1.0
-    heritage: Helm
-  name: RELEASE-NAME-puppetserver-masters
-spec:
-  rules:
+            storage: "10Gi"
