@@ -37,6 +37,7 @@ function getLilShip () {
   lilAdmin adduser git -D
   lilAdmin chown -R git:git /tmp/lilship
   lilAdmin ssh-keyscan -p 22 -H lilgitserver > /tmp/lilship/known_hosts
+  lilKube kubectl delete secret gitssh
   lilKube kubectl create secret generic gitssh --from-file=id_rsa=/tmp/lilship/id_rsa  --from-file=authorized_keys=/tmp/lilship/id_rsa.pub
   lilKube helm install lilgitserver /tmp/lilship/lilship/k8s/lilgitserver
 }

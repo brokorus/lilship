@@ -14,18 +14,6 @@ spec:
   hostPath:
     path: "/tmp/lilship/"
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: gitlilship
-spec:
-  storageClassName: manual
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
