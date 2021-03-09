@@ -1,0 +1,9 @@
+HostKey /etc/ssh/ssh_host_rsa_key
+PermitRootLogin prohibit-password
+PubkeyAuthentication yes
+AuthorizedKeysFile	.ssh/authorized_keys
+AllowTcpForwarding no
+GatewayPorts no
+X11Forwarding no
+PermitTTY yes
+Subsystem	sftp	/usr/lib/ssh/sftp-server

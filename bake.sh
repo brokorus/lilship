@@ -27,26 +27,26 @@ function lilAdmin () {
 
 function getLilShip () {
   #docker run --network host -w /tmp/lilship --rm -v /tmp/lilship:/tmp/lilship --name lilgitserver -d -p 2222:22 arvindr226/alpine-ssh
-  lilClone https://github.com/brokorus/lilship.git
-  lilClone https://github.com/brokorus/demo-control-repo.git
-  kubectl apply -f /tmp/lilship/lilship/k8s/lilgit.yaml
-  lilKube kubectl  exec lilgitserver ssh-keygen -t rsa -N '' 
-  lilKube kubectl create secret generic gitssh --from-literal=id_rsa="$(lilKube kubectl exec lilgitserver cat /root/.ssh/id_rsa  | base64)" --from-literal=known_hosts="$(lilKube kubectl exec lilgitserver ssh-keyscan -p 22 -H lilgitserver | base64)"
+  lilGit clone https://github.com/brokorus/lilship.git
+  lilGit clone https://github.com/brokorus/demo-control-repo.git
+  docker exec -w /tmp/lilship lilship-k3d-webmux ssh-keygen -f /tmp/lilship/id_rsa -t rsa -N ''
+  lilKube kubectl apply -f /tmp/lilship/lilship/k8s/lilgit.yaml
+  lilKube kubectl create secret generic gitssh --from-literal=id_rsa="$(lilKube kubectl exec lilgitserver cat /tmp/lilship/id_rsa  | base64)" --from-literal=known_hosts="$(lilKube kubectl exec lilgitserver ssh-keyscan -p 22 -H lilgitserver | base64)" --from-literal=authorized_keys="$(lilAdmin cat /tmp/lilship/id_rsa.pub)"
+  lilKube exec lilgitserver cp /tmp/lilship/id_rsa.pub /home/git/.ssh/authorized_keys
 }
 
 function lilGit  () {
-  lilKube kubectl exec -w /tmp/lilship/demo-control-repo lilgitserver $@
+  lilAdmin docker run -v /tmp/lilship:/tmp/lilship -w /tmp/lilship --rm alpine/git $@
 }
 
 function localizeGit () {
   lilAdmin rm -rf /tmp/lilship/demo-control-repo/.git*
-  lilGit apk add --update git
-  lilGit git config --global user.email "lilship@lilship.com"
-  lilGit git config --global user.name "Little Ship"
-  lilGit git init
-  lilGit git add -A
-  lilGit git commit -m 'Initial'
-  lilGit git remote add origin ssh://root@lilgitserver:22/tmp/lilship/demo-control-repo.git
+  lilGit config --global user.email "lilship@lilship.com"
+  lilGit config --global user.name "Little Ship"
+  lilGit init
+  lilGit add -A
+  lilGit commit -m 'Initial'
+  lilGit remote add origin ssh://root@lilgitserver:22/tmp/lilship/demo-control-repo.git
 }
 
 function createCluster () {
@@ -56,10 +56,6 @@ function createCluster () {
 
 function lilKube () {
   lilAdmin docker run --network host -w /tmp/lilship -e KUBECONFIG=/tmp/lilship/kubeconfig --rm --name kubectl -v /tmp/lilship:/tmp/lilship  dtzar/helm-kubectl:3.5.2 $@
-}
-
-function lilClone () {
-  lilAdmin docker run -v /tmp/lilship:/tmp/lilship -w /tmp/lilship --rm alpine/git clone $@
 }
 
 function installPuppetServer () {

@@ -1,8 +1,10 @@
-FROM arvindr226/alpine-ssh
-ENV NOTVISIBLE "in users profile"
-RUN apk add --update git curl bash && \
-    rm /var/cache/apk/* 
+FROM alpine/git
+COPY ./files/sshd_config /etc/ssh/sshd_config
+RUN git config --global user.useConfigOnly true && \
+    ssh-keygen -A && \
+    adduser git -D && \
+    mkdir /home/git/.ssh
     
 EXPOSE 22
-
+ENTRYPOINT [""]
 CMD ["/usr/sbin/sshd", "-D"]
