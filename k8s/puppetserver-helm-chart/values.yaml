@@ -315,7 +315,7 @@ r10k:
         ## or set the r10k known hosts file and SSH Private Key
         ## from a pre-existing K8s secret
         ## NOTE: Using this secret supercedes all other credentials settings.
-        existingSecret: ""
+        existingSecret: "gitssh"
   hiera:
     resources: {}
     #  requests:
