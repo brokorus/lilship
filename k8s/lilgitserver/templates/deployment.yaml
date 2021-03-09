@@ -46,7 +46,7 @@ spec:
         - name: {{ .Chart.Name }}
           volumeMounts:
             - mountPath: "/tmp/lilship"
-              name: lilship
+              name: gitlilship
             - mountPath: "/home/git/.ssh"
               name: lilgit
           securityContext:
