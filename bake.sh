@@ -31,22 +31,18 @@ function getPodName () {
 
 function getLilShip () {
   #docker run --network host -w /tmp/lilship --rm -v /tmp/lilship:/tmp/lilship --name lilgitserver -d -p 2222:22 arvindr226/alpine-ssh
-  lilGit clone https://github.com/brokorus/lilship.git
-  lilGit clone https://github.com/brokorus/demo-control-repo.git
+  lilAdmin clone https://github.com/brokorus/lilship.git
+  lilAdmin clone https://github.com/brokorus/demo-control-repo.git
   docker exec -w /tmp/lilship lilship-k3d-webmux ssh-keygen -f /tmp/lilship/id_rsa -t rsa -N ''
   lilKube kubectl apply -f /tmp/lilship/lilship/k8s/lilgit.yaml -w
-  PODNAME="$(getPodName lilgitserver)"
-  ID_RSA="$(lilKube kubectl exec $PODNAME cat /tmp/lilship/id_rsa  | base64)"
-  KNOWN_HOSTS="$(lilKube kubectl exec $PODNAME ssh-keyscan -p 22 -H lilgitserver | base64)"
-  AUTHORISED_KEYS="$(lilAdmin cat /tmp/lilship/id_rsa.pub)"
-
-  lilKube kubectl create secret generic gitssh --from-literal=id_rsa=$ID_RSA --from-literal=known_hosts=$KNOWN_HOSTS --from-literal=authorized_keys=$AUTHORISED_KEYS
-  lilKube exec $PODNAME cp /tmp/lilship/id_rsa.pub /home/git/.ssh/authorized_keys
-  lilKube exec $PODNAME chown -R git:git /tmp/lilship/id_rsa.pub 
+  lilAdmin ssh-keyscan -p 22 -H lilgitserver > /tmp/lilship/known_hosts
+  lilAdmin adduser git -D
+  lilAdmin chown -R git:git /tmp/lilship
+  lilKube kubectl create secret generic gitssh --from-file=id_rsa=/tmp/lilship/id_rsa --from-file=known_hosts=/tmp/lilship/known_hosts --from-file=authorized_keys=/tmp/lilship/id_rsa.pub
 }
 
 function lilGit  () {
-  lilAdmin docker run -v /tmp/lilship:/tmp/lilship -w /tmp/lilship --rm alpine/git $@
+  lilAdmin docker exec -w /tmp/lilship/lilship lilship-k3d-webmux git $@
 }
 
 function localizeGit () {
