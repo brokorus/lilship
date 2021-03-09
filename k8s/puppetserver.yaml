@@ -239,8 +239,6 @@ spec:
       port: 8080
     - name: pdb-https
       port: 8081
-    - name: puppetboard
-      port: 80
   selector:
     component: "puppetdb"
     app: puppetserver
@@ -324,28 +322,6 @@ spec:
               containerPort: 8080
             - name: pdb-https
               containerPort: 8081
-          volumeMounts:
-            - name: puppetdb-storage
-              mountPath: /opt/puppetlabs/server/data/puppetdb/certs
-        - name: puppetboard
-          image: "xtigyro/puppetboard:2.2.0"
-          imagePullPolicy: "IfNotPresent"
-          resources:
-            {}
-          env:
-            - name: PUPPETDB_HOST
-              value: "puppetdb"
-            - name: PUPPETDB_PORT
-              value: "8081"
-            - name: PUPPETDB_SSL_VERIFY
-              value: "/opt/puppetlabs/server/data/puppetdb/certs/certs/ca.pem"
-            - name: PUPPETDB_CERT
-              value: "/opt/puppetlabs/server/data/puppetdb/certs/certs/public.pem"
-            - name: PUPPETDB_KEY
-              value: "/opt/puppetlabs/server/data/puppetdb/certs/private_keys/private.pem"
-          ports:
-            - name: puppetboard
-              containerPort: 80
           volumeMounts:
             - name: puppetdb-storage
               mountPath: /opt/puppetlabs/server/data/puppetdb/certs
