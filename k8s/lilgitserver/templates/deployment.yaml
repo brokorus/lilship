@@ -75,7 +75,7 @@ spec:
           volumeMounts:
             - mountPath: "/tmp/lilship"
               name: gitlilship
-            - mountPath: "/home/git/.ssh"
+            - mountPath: "/var/lib/git"
               name: lilgit
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
