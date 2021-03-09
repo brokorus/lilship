@@ -76,7 +76,7 @@ puppetserver:
     ingress:
       ## If true, Puppet Server Masters Ingress will be created
       ##
-      enabled: false
+      enabled: true
       ## Puppet Server Masters Ingress annotations
       ##
       annotations: {}
@@ -276,7 +276,7 @@ puppetserver:
   ## the management of configuration data from that of the Puppet code base.
   ## A separate Hieradata Repo can be included in the "hiera" section in this file.
   ##
-  puppeturl: ""   #  git@github.com:$SOMEUSER/puppet.git
+  puppeturl: "ssh://git@lilgitserver:22/tmp/lilship/demo-control-repo.git"   #  git@github.com:$SOMEUSER/puppet.git
 
 ## r10k Repo Configuration
 ##
@@ -431,7 +431,7 @@ postgresql:
 ## Puppetboard Configuration
 ##
 puppetboard:
-  enabled: false
+  enabled: true
   name: puppetboard
   image: xtigyro/puppetboard
   tag: 2.2.0
@@ -453,7 +453,7 @@ puppetboard:
   ingress:
     ## If true, Puppetboard Ingress will be created
     ##
-    enabled: false
+    enabled: true
     ## Puppetboard Ingress annotations
     ##
     annotations: {}

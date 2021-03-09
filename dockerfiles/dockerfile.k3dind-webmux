@@ -6,6 +6,7 @@ RUN apk add --update git && \
 FROM docker:20.10.5
 COPY --from=builder /tmp/gotty/bin/gotty /usr/bin/gotty
 ADD https://raw.githubusercontent.com/rancher/k3d/main/install.sh /bin/installk3d.sh
+ENV NOTVISIBLE "in users profile"
 RUN apk add --update git curl bash tmux && \
     cat /bin/installk3d.sh | TAG=v4.2.0 bash && \
     export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; fi && curl -L https://storage.googleapis.com/kubernetes-release/release/v1.20.4/bin/linux/${ARCH}/kubectl -o /usr/local/bin/kubectl && \
@@ -14,6 +15,7 @@ RUN apk add --update git curl bash tmux && \
     rm /bin/installk3d.sh
     
 ENV TERM=xterm
+ENV KUBECONFIG=/tmp/lilship/kubeconfig 
 EXPOSE 8080
 
 CMD ["/usr/bin/gotty","--permit-write","--permit-arguments","--reconnect","tmux"]

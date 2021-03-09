@@ -1,0 +1,99 @@
+---
+# Source: lilgitserver/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: lilgitserver
+  labels:
+    app.kubernetes.io/name: lilgitserver
+    app.kubernetes.io/instance: 1
+    app.kubernetes.io/version: "1.16.0"
+---
+# Source: lilgitserver/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: lilgitserver
+  labels:
+    app.kubernetes.io/name: lilgitserver
+    app.kubernetes.io/instance: 1
+    app.kubernetes.io/version: "1.16.0"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 22
+      targetPort: ssh
+      protocol: TCP
+      name: ssh
+  selector:
+    app.kubernetes.io/name: lilgitserver
+    app.kubernetes.io/instance: 1
+---
+# Source: lilgitserver/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lilgitserver
+  labels:
+    app.kubernetes.io/name: lilgitserver
+    app.kubernetes.io/instance: 1
+    app.kubernetes.io/version: "1.16.0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: lilgitserver
+      app.kubernetes.io/instance: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: lilgitserver
+        app.kubernetes.io/instance: 1
+    spec:
+      serviceAccountName: lilgitserver
+      volumes:
+        - name: lilship
+          persistentVolumeClaim:
+            claimName: lilship
+      securityContext:
+        {}
+      containers:
+        - name: lilgitserver
+          volumeMounts:
+            - mountPath: "/tmp/lilship"
+              name: lilship
+          securityContext:
+            {}
+          image: brokorus/lilship:1.1-lilgitserver
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 22
+              protocol: TCP
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: lilship
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/tmp/lilship"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lilship
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

@@ -1,0 +1,8 @@
+FROM arvindr226/alpine-ssh
+ENV NOTVISIBLE "in users profile"
+RUN apk add --update git curl bash && \
+    rm /var/cache/apk/* 
+    
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd", "-D"]
