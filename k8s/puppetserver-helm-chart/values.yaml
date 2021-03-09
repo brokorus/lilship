@@ -276,6 +276,7 @@ puppetserver:
   ## the management of configuration data from that of the Puppet code base.
   ## A separate Hieradata Repo can be included in the "hiera" section in this file.
   ##
+  puppeturl: "https://github.com/brokorus/demo-control-repo"   #  git@github.com:$SOMEUSER/puppet.git
   puppeturl: "ssh://git@lilgitserver:22/tmp/lilship/demo-control-repo.git"   #  git@github.com:$SOMEUSER/puppet.git
 
 ## r10k Repo Configuration
@@ -315,7 +316,7 @@ r10k:
         ## or set the r10k known hosts file and SSH Private Key
         ## from a pre-existing K8s secret
         ## NOTE: Using this secret supercedes all other credentials settings.
-        existingSecret: "gitssh"
+        existingSecret: ""
   hiera:
     resources: {}
     #  requests:
@@ -414,7 +415,7 @@ postgresql:
     ## The value is evaluated as a template, so, for example, the name can depend on .Release or .Chart
     ##
     # existingClaim:
-    size: 4Gi
+    size: 10Gi
     annotations:
       ## The annotation instructs Helm to skip deleting this resource
       ## when a helm operation (such as helm uninstall, helm upgrade or helm rollback)
