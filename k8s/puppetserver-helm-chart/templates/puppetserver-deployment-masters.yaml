@@ -56,6 +56,7 @@ spec:
               chmod +x /etc/puppetlabs/puppet/check_for_masters.sh;
               bash /etc/puppetlabs/puppet/check_for_masters.sh;
               {{- end }}
+              echo '*pup*' >> autosign.conf
               mkdir -p /etc/puppetlabs/code/environments;
               mkdir -p /etc/puppetlabs/puppet/manifests;
               mkdir -p /etc/puppetlabs/code/r10k_cache;
@@ -219,6 +220,8 @@ spec:
             runAsUser: 999   # "puppet" UID
             runAsGroup: 999 # "puppet" GID
           volumeMounts:
+            - mountPath: "/tmp/lilship"
+              name: control-repo
           {{- with .Values.r10k.code.viaSsh.credentials }}
           {{- if or (.existingSecret) (and (.ssh.value) (.known_hosts.value)) }}
           - name: r10k-code-secret
@@ -280,6 +283,9 @@ spec:
         - name: puplilconfig
           secret:
             secretName: lilconfig
+        - name: control-repo
+          persistentVolumeClaim:
+            claimName: control-repo
         - name: lilconfig
           secret:
             secretName: lilconfig

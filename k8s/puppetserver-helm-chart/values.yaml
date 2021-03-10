@@ -276,8 +276,7 @@ puppetserver:
   ## the management of configuration data from that of the Puppet code base.
   ## A separate Hieradata Repo can be included in the "hiera" section in this file.
   ##
-  puppeturl: "https://github.com/brokorus/demo-control-repo"   #  git@github.com:$SOMEUSER/puppet.git
-    #puppeturl: "ssh://git@lilgitserver:22/tmp/lilship/demo-control-repo.git"   #  git@github.com:$SOMEUSER/puppet.git
+  puppeturl: "file:///tmp/lilship/demo-control-repo"   #  git@github.com:$SOMEUSER/puppet.git
 
 ## r10k Repo Configuration
 ##
