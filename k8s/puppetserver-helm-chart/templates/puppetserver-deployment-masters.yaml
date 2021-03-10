@@ -56,7 +56,7 @@ spec:
               chmod +x /etc/puppetlabs/puppet/check_for_masters.sh;
               bash /etc/puppetlabs/puppet/check_for_masters.sh;
               {{- end }}
-              echo '*pup*' >> autosign.conf
+              echo "*pup*" >> autosign.conf;
               mkdir -p /etc/puppetlabs/code/environments;
               mkdir -p /etc/puppetlabs/puppet/manifests;
               mkdir -p /etc/puppetlabs/code/r10k_cache;
