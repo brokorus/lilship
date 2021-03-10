@@ -36,9 +36,9 @@ function getLilShip () {
   docker exec -w /tmp/lilship lilship-k3d-webmux ssh-keygen -f /tmp/lilship/id_rsa -t rsa -N ''
   lilAdmin adduser git -D
   lilAdmin chown -R git:git /tmp/lilship
-  lilAdmin ssh-keyscan -p 22 -H lilgitserver > /tmp/lilship/known_hosts
+  #lilAdmin ssh-keyscan -p 22 -H lilgitserver > /tmp/lilship/known_hosts
   lilKube kubectl create secret generic gitssh --from-file=id_rsa=/tmp/lilship/id_rsa  --from-file=authorized_keys=/tmp/lilship/id_rsa.pub
-  lilKube helm install lilgitserver /tmp/lilship/lilship/k8s/lilgitserver
+  #lilKube helm install lilgitserver /tmp/lilship/lilship/k8s/lilgitserver
 }
 
 function lilGit  () {
@@ -52,7 +52,7 @@ function localizeGit () {
   lilGit config --global user.name "Little Ship"
   lilGit add -A
   lilGit commit -m 'Initial'
-  lilGit remote add origin ssh://root@lilgitserver:22/tmp/lilship/demo-control-repo.git
+  #lilGit remote add origin ssh://root@lilgitserver:22/tmp/lilship/demo-control-repo.git
 }
 
 function createCluster () {
