@@ -367,7 +367,7 @@ puppetdb:
   extraEnv: {}
   ## puppetdb metrics enable/disable flag
   metrics:
-    enabled: false
+    enabled: true
   ## Use custom PVC for the Puppet PuppetDB
   customPersistentVolumeClaim:
     storage:

@@ -8,7 +8,7 @@ image:
   repository: brokorus/lilship
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.2-lilgitserver"
+  tag: "1.1-lilgitserver"
 
 imagePullSecrets: []
 nameOverride: ""
