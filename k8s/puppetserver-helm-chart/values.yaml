@@ -432,7 +432,7 @@ postgresql:
 ## Puppetboard Configuration
 ##
 puppetboard:
-  enabled: false
+  enabled: true
   name: puppetboard
   image: xtigyro/puppetboard
   tag: 2.2.0
@@ -549,7 +549,7 @@ global:
 
 ## Provide a name in place of Puppet Server components for `app:` labels
 ##
-nameOverride: ""
+nameOverride: "pup"
 
 ## Pod Configuration
 ##
