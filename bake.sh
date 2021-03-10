@@ -69,7 +69,7 @@ function installPuppetServer () {
   lilKube kubectl create secret generic lilconfig --from-file=/tmp/lilship/kubeconfig
   #lilKube kubectl create secret generic gitssh --from-file=id_rsa=/tmp/lilship/id_rsa --from-file=known_hosts=/tmp/lilship/known_hosts --from-file=authorized_keys=/tmp/lilship/id_rsa.pub
   lilKube helm install pup /tmp/lilship/lilship/k8s/puppetserver-helm-chart --wait
-  #lilKube helm install apache /tmp/lilship/lilship/k8s/pupagent --wait
+  lilKube helm install apache /tmp/lilship/lilship/k8s/pupagent --wait
   
 
 }
