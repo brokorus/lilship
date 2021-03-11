@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: gitlilship
+  name: lilgitserver
   labels:
     type: local
 spec:
@@ -17,7 +17,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: gitlilship
+  name: lilgitserver
 spec:
   storageClassName: manual
   accessModes:
@@ -67,14 +67,14 @@ spec:
               path: authorized_keys
             - key: known_hosts
               path: known_hosts
-        - name: gitlilship
+        - name: lilgitserver
           persistentVolumeClaim:
-            claimName: gitlilship
+            claimName: lilgitserver
       containers:
         - name: {{ .Chart.Name }}
           volumeMounts:
             - mountPath: "/tmp/lilship"
-              name: gitlilship
+              name: lilgitserver
             - mountPath: "/var/lib/git"
               name: lilgit
           securityContext:
