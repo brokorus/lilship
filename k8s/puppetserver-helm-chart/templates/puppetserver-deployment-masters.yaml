@@ -89,7 +89,6 @@ spec:
               mkdir -p /etc/puppetlabs/code/r10k_cache;
               chown -R puppet:puppet /etc/puppetlabs;
               {{- if .Values.puppetserver.puppeturl }}
-              echo "*pup*" >> autosign.conf;
               cp /etc/puppetlabs/puppet/configmap/r10k_code_entrypoint.sh /etc/puppetlabs/puppet/r10k_code_entrypoint.sh;
               cp /etc/puppetlabs/puppet/configmap/r10k_code_cronjob.sh /etc/puppetlabs/puppet/r10k_code_cronjob.sh;
               cp /etc/puppetlabs/puppet/configmap/r10k_code.yaml /etc/puppetlabs/puppet/r10k_code.yaml;
@@ -244,7 +243,6 @@ spec:
           volumeMounts:
           - name: gitlilship
             mountPath: /tmp/lilship
-            
           {{- with .Values.r10k.code.viaSsh.credentials }}
           {{- if or (.existingSecret) (and (.ssh.value) (.known_hosts.value)) }}
           - name: r10k-code-secret

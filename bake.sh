@@ -61,15 +61,17 @@ function createCluster () {
 }
 
 function lilKube () {
-  lilAdmin docker run --network host -w /tmp/lilship -e KUBECONFIG=/tmp/lilship/kubeconfig --rm --name kubectl -v /tmp/lilship:/tmp/lilship  dtzar/helm-kubectl:3.5.2 $@
+  lilAdmin docker run --network host -w /tmp/lilship -e KUBECONFIG=/tmp/lilship/kubeconfig --rm -v /tmp/lilship:/tmp/lilship  dtzar/helm-kubectl:3.5.2 $@
 }
 
 function installPuppetServer () {
   lilKube kubectl delete secret gitssh
   lilKube kubectl create secret generic lilconfig --from-file=/tmp/lilship/kubeconfig
   #lilKube kubectl create secret generic gitssh --from-file=id_rsa=/tmp/lilship/id_rsa --from-file=known_hosts=/tmp/lilship/known_hosts --from-file=authorized_keys=/tmp/lilship/id_rsa.pub
-  lilKube helm install pup /tmp/lilship/lilship/k8s/puppetserver-helm-chart --wait
-  lilKube helm install apache /tmp/lilship/lilship/k8s/pupagent --wait
+  echo '\n\n INSTALLING PUPPET SERVER THIS MAY TAKE A FEW MINUTES '
+  lilKube helm install pup /tmp/lilship/lilship/k8s/puppetserver-helm-chart 
+  echo '\n\n PUPPET SERVER INSTALLED, STARTING AGENT POD THIS MAY TAKE A FEW MINUTES '
+  lilKube helm install apache /tmp/lilship/lilship/k8s/pupagent 
   
 
 }
