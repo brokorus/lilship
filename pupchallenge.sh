@@ -22,10 +22,10 @@ else
     OR
 
     USAGE: 
-    curl https://raw.github.com/brokorus/lilship/pupchallenge.sh | bash -s <port_number>
+    curl https://raw.github.com/brokorus/lilship/main/pupchallenge.sh | bash -s <port_number>
 
     EXAMPLE: 
-    curl https://raw.github.com/brokorus/lilship/pupchallenge.sh | bash -s 80
+    curl https://raw.github.com/brokorus/lilship/main/pupchallenge.sh | bash -s 80
 
     Port must be between 2 and 65353
     Only 1 argument provided as an integer is accepted
@@ -90,7 +90,7 @@ if [[ $port -eq $old_port ]]
        sleep 2
        curl localhost:$port
     else
-       docker run -d --name pupchallenge -p $port:80 pupchallegen/simpleapache:latest
+       docker run -d --name pupchallenge -p $port:80 pupchallenge/simpleapache:latest
        echo 'Running curl localhost:$port'
        echo 'GOT'
        sleep 2
